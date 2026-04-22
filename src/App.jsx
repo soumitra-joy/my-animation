@@ -7,7 +7,7 @@ const TX = [205, 685, 205, 685];          // thermometer cx
 const T_LEFT = [true, false, true, false];
 const HOT=68, TMAX=92, TMIN=22, RACK_R=56;
 const TUBE_H=104, TUBE_W=17, BULB_R=13;
-const W=980, H=650;
+const W=980, H=570;
 
 /* user objects: position + which cluster they drive */
 const USERS = [
@@ -114,7 +114,7 @@ function ClusterGroup({ ri, temp, animOff }) {
         strokeDasharray="4 3" strokeDashoffset={-animOff*22}/>
       {/* 0-25 GHz label on top arc */}
       <text x={cx} y={cy-ry-24} textAnchor="middle"
-        fill="rgba(60,155,255,.32)" fontSize="7" fontFamily="'Courier New',monospace">0–25 GHz</text>
+        fill="rgba(60,155,255,.45)" fontSize="11" fontFamily="'Courier New',monospace">0–25 GHz</text>
 
       {/* cluster background */}
       {hot&&<rect x={cx-58} y={cy-58} width={116} height={116} rx={8} fill={tc(temp,.08)}/>}
@@ -130,7 +130,7 @@ function ClusterGroup({ ri, temp, animOff }) {
 
       {/* cluster label */}
       <text x={cx} y={cy+74} textAnchor="middle"
-        fill="rgba(65,115,205,.40)" fontSize="10" letterSpacing=".18em"
+        fill="rgba(65,115,205,.55)" fontSize="14" letterSpacing=".18em"
         fontFamily="'Courier New',monospace">{LABELS[ri]}</text>
     </g>
   );
@@ -197,8 +197,8 @@ function ParallelLink({ ri, rj, animOff }) {
         </g>);
       })}
       <circle cx={mx} cy={my} r={3.2} fill="rgba(255,218,75,.82)"/>
-      <text x={mx} y={my-9} textAnchor="middle" fill="rgba(255,205,65,.72)"
-        fontSize="6.8" fontFamily="'Courier New',monospace">175–290 GHz</text>
+      <text x={mx} y={my-9} textAnchor="middle" fill="rgba(255,205,65,.80)"
+        fontSize="11" fontFamily="'Courier New',monospace">175–290 GHz</text>
     </g>
   );
 }
@@ -252,12 +252,12 @@ function RemoteUser({ x, y, level, label }) {
       {/* status badge */}
       <text x={x} y={y-58} textAnchor="middle"
         fill={busy?"rgba(255,105,28,.92)":active?"rgba(255,198,50,.88)":"rgba(82,142,218,.52)"}
-        fontSize="8.5" fontWeight={active?"700":"400"}
+        fontSize="11" fontWeight={active?"700":"400"}
         fontFamily="'Courier New',monospace" letterSpacing=".10em">
         {busy?"HEAVY LOAD":active?"ACTIVE":"IDLE"}
       </text>
-      <text x={x} y={y+32} textAnchor="middle"
-        fill="rgba(68,118,208,.44)" fontSize="8.5"
+      <text x={x} y={y+34} textAnchor="middle"
+        fill="rgba(68,118,208,.60)" fontSize="13"
         fontFamily="'Courier New',monospace" letterSpacing=".1em">{label}</text>
     </g>
   );
@@ -283,8 +283,8 @@ function InternetLine({ user, level, animOff }) {
         strokeWidth={active?1.6:.9} strokeDasharray="7 5"/>
       {/* INTERNET label */}
       <text x={mx} y={my-9} textAnchor="middle"
-        fill={active?"rgba(255,185,42,.45)":"rgba(52,90,178,.22)"}
-        fontSize="7.5" letterSpacing=".18em" fontFamily="'Courier New',monospace">INTERNET</text>
+        fill={active?"rgba(255,185,42,.55)":"rgba(52,90,178,.28)"}
+        fontSize="11" letterSpacing=".18em" fontFamily="'Courier New',monospace">INTERNET</text>
       {/* animated data packets */}
       {Array.from({length:numPkts},(_,i)=>{
         const t=((animOff*.28+i/numPkts)%1.0);
@@ -292,59 +292,6 @@ function InternetLine({ user, level, animOff }) {
         return <circle key={i} cx={px} cy={y1} r={2.8}
           fill={`rgba(255,210,55,${.65+level*.25})`}/>;
       })}
-    </g>
-  );
-}
-
-/* ══════════════════ STATUS BAR (top of SVG) ══════════════════ */
-function StatusBar({ phaseIdx, name, desc, clusterTemps, userLevels, mode, guidedPct }) {
-  const scol=["#52c4ff","#ffc938","#ff6720"][phaseIdx];
-  const sbg=["rgba(4,12,50,.94)","rgba(56,42,0,.94)","rgba(60,12,0,.94)"][phaseIdx];
-  return(
-    <g>
-      <rect x={0} y={0} width={W} height={82} fill={sbg}/>
-      <rect x={0} y={80} width={W} height={2} fill={scol} opacity={.42}/>
-      {/* state name */}
-      <text x={26} y={32} fill={scol} fontSize="22" fontWeight="700"
-        fontFamily="'Courier New',monospace" letterSpacing=".07em">{name}</text>
-      {/* description */}
-      <text x={26} y={56} fill={scol} fontSize="12.5" opacity={.78}
-        fontFamily="'Courier New',monospace">{desc}</text>
-      {/* guided progress bar */}
-      {mode==="guided"&&(
-        <>
-          <rect x={26} y={68} width={480} height={3} rx={1.5} fill="rgba(28,52,128,.4)"/>
-          <rect x={26} y={68} width={guidedPct*480} height={3} rx={1.5} fill={scol} opacity={.6}/>
-        </>
-      )}
-      {/* cluster temp indicators */}
-      {clusterTemps.map((t,i)=>{
-        const hot=t>=HOT, cx=680+i*42;
-        return(<g key={i}>
-          <circle cx={cx} cy={28} r={13}
-            fill={hot?tc(t,.24):"rgba(16,30,78,.5)"}
-            stroke={hot?tc(t,.72):"rgba(42,78,152,.28)"} strokeWidth="1.2"/>
-          <text x={cx} y={32} textAnchor="middle" fill={hot?tc(t):"rgba(72,115,198,.42)"}
-            fontSize="8" fontFamily="'Courier New',monospace">{LABELS[i].replace("Rack","")}</text>
-          <text x={cx} y={55} textAnchor="middle" fill={hot?tc(t,.72):"rgba(52,92,172,.32)"}
-            fontSize="9" fontWeight={hot?"700":"400"} fontFamily="'Courier New',monospace">
-            {Math.round(t)}°</text>
-        </g>);
-      })}
-      {/* user activity dots */}
-      {userLevels.map((l,i)=>{
-        const act=l>.28, cx=860+i*26;
-        return(<g key={i}>
-          <circle cx={cx} cy={28} r={8}
-            fill={act?`rgba(255,175,40,${.15+l*.22})`:"rgba(16,30,78,.4)"}
-            stroke={act?"rgba(255,180,42,.52)":"rgba(42,78,152,.22)"} strokeWidth="1"/>
-          <text x={cx} y={32} textAnchor="middle"
-            fill={act?"rgba(255,200,58,.80)":"rgba(65,105,172,.32)"}
-            fontSize="6.5" fontFamily="'Courier New',monospace">U{i+1}</text>
-        </g>);
-      })}
-      <text x={850} y={60} fill="rgba(72,108,185,.35)" fontSize="8"
-        fontFamily="'Courier New',monospace" letterSpacing=".12em">CLUSTERS  USERS</text>
     </g>
   );
 }
@@ -358,9 +305,9 @@ function makeAutoUsers() {
 }
 
 export default function App() {
-  const [mode,setMode]=useState("guided");
-  const [cTemps,setCTemps]=useState([TMIN+3,TMIN+3,TMIN+3,TMIN+3]);
-  const [uLevels,setULevels]=useState([.02,.02,.02,.02]);
+  const [mode,setMode]=useState("auto");
+  const [cTemps,setCTemps]=useState([72,72,TMIN+3,TMIN+3]);
+  const [uLevels,setULevels]=useState([.88,.85,.02,.02]);
   const [animOff,setAnimOff]=useState(0);
   const [gPhase,setGPhase]=useState(0);
   const [gPct,setGPct]=useState(0);
@@ -447,12 +394,58 @@ export default function App() {
         </div>
       </div>
 
+      {/* ── HTML STATUS BOX ── */}
+      {(()=>{
+        const scol=["#52c4ff","#ffc938","#ff6720"][phaseIdx];
+        const sbg=["rgba(4,14,52,.97)","rgba(58,44,0,.97)","rgba(62,14,0,.97)"][phaseIdx];
+        return(
+          <div style={{background:sbg,borderBottom:`2px solid ${scol}`,padding:"10px 22px",
+            display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:16,flexShrink:0}}>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{color:scol,fontSize:24,fontWeight:700,letterSpacing:".07em",marginBottom:5,lineHeight:1.1}}>{sName}</div>
+              <div style={{color:scol,fontSize:15,opacity:.82,lineHeight:1.5,whiteSpace:"normal",wordBreak:"break-word"}}>{sDesc}</div>
+              {mode==="guided"&&(
+                <div style={{marginTop:8,height:4,background:"rgba(28,52,128,.4)",borderRadius:2,overflow:"hidden",maxWidth:520}}>
+                  <div style={{height:"100%",width:`${gPct*100}%`,background:scol,opacity:.7,borderRadius:2,transition:"width .1s"}}/>
+                </div>
+              )}
+            </div>
+            <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
+              <div style={{display:"flex",gap:6}}>
+                {cTemps.map((t,i)=>{
+                  const hot=t>=HOT;
+                  return(
+                    <div key={i} style={{width:46,textAlign:"center",padding:"4px 0",borderRadius:5,
+                      background:hot?`rgba(${tc(t).replace("rgb(","").replace(")","")},.16)`:"rgba(16,30,78,.5)",
+                      border:`1px solid ${hot?tc(t,.65):"rgba(42,78,152,.25)"}`,transition:"all .4s"}}>
+                      <div style={{fontSize:10,color:hot?tc(t):"rgba(72,115,198,.45)",letterSpacing:".1em"}}>{LABELS[i].replace("Rack ","")}</div>
+                      <div style={{fontSize:13,fontWeight:700,color:hot?tc(t):"rgba(52,92,172,.38)"}}>{Math.round(t)}°</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:"flex",gap:5,alignItems:"center"}}>
+                <span style={{fontSize:10,color:"rgba(72,108,185,.45)",letterSpacing:".12em",marginRight:2}}>USERS</span>
+                {uLevels.map((l,i)=>{
+                  const act=l>.28;
+                  return(
+                    <div key={i} style={{width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",
+                      justifyContent:"center",fontSize:11,fontWeight:700,
+                      background:act?`rgba(255,175,40,${.15+l*.2})`:"rgba(16,30,78,.45)",
+                      border:`1px solid ${act?"rgba(255,180,42,.55)":"rgba(42,78,152,.22)"}`,
+                      color:act?"rgba(255,210,58,.90)":"rgba(65,105,172,.38)",transition:"all .4s"}}>U{i+1}</div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── full SVG ── */}
-      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 8px 8px"}}>
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 8px 4px"}}>
         <svg viewBox={`0 0 ${W} ${H}`}
           style={{width:"100%",maxWidth:W,height:"auto",display:"block"}}>
-
-          {/* grid */}
           <defs>
             <pattern id="gp" width="38" height="38" patternUnits="userSpaceOnUse">
               <path d="M38 0L0 0 0 38" fill="none" stroke="#3a72b8" strokeWidth=".4"/>
@@ -465,27 +458,21 @@ export default function App() {
             ))}
           </defs>
           <rect width={W} height={H} fill="rgba(4,6,18,1)"/>
-          <rect y={82} width={W} height={H-82} fill="url(#gp)" opacity=".042"/>
+          <rect width={W} height={H} fill="url(#gp)" opacity=".042"/>
 
           {/* DATA CENTER boundary */}
-          <rect x={178} y={175} width={544} height={418} rx={10}
-            fill="rgba(5,10,30,.0)"
-            stroke="rgba(38,72,158,.18)" strokeWidth="1.2" strokeDasharray="8 4"/>
-          <text x={450} y={612} textAnchor="middle"
+          <rect x={178} y={90} width={544} height={418} rx={10}
+            fill="rgba(5,10,30,.0)" stroke="rgba(38,72,158,.18)" strokeWidth="1.2" strokeDasharray="8 4"/>
+          <text x={450} y={526} textAnchor="middle"
             fill="rgba(50,88,168,.25)" fontSize="11" letterSpacing=".3em"
             fontFamily="'Courier New',monospace">DATA CENTER</text>
 
-          {/* internet connection lines (rendered first, under everything) */}
           {USERS.map((u,i)=>(
             <InternetLine key={i} user={u} level={uLevels[i]} animOff={animOff}/>
           ))}
-
-          {/* broadband cross-links */}
           {links.map(([ri,rj])=>(
             <ParallelLink key={`${ri}-${rj}`} ri={ri} rj={rj} animOff={animOff}/>
           ))}
-
-          {/* rack glow halos + pulse rings */}
           {RP.map((rp,ri)=>{
             const hot=hotSet.has(ri);
             return(<g key={ri}>
@@ -493,44 +480,34 @@ export default function App() {
               {hot&&<PulseRing cx={rp.x} cy={rp.y} color={tc(cTemps[ri],.62)} delay={ri*.28}/>}
             </g>);
           })}
-
-          {/* cluster groups (server racks) */}
           {RP.map((_,ri)=>(
             <ClusterGroup key={ri} ri={ri} temp={cTemps[ri]} animOff={animOff}/>
           ))}
-
-          {/* thermometers */}
           {RP.map((_,ri)=>(
             <ClusterThermometer key={ri} ri={ri} temp={cTemps[ri]} hot={hotSet.has(ri)}/>
           ))}
-
-          {/* remote users */}
           {USERS.map((u,i)=>(
             <RemoteUser key={i} x={u.x} y={u.y} level={uLevels[i]} label={u.label}/>
           ))}
 
           {/* legend */}
-          <g transform="translate(190,630)">
+          <g transform="translate(190,545)">
             <path d="M0 0 Q18 -8 36 0" fill="none" stroke="rgba(60,162,255,.38)" strokeWidth="1.2" strokeDasharray="4 3"/>
-            <text x={42} y={4} fill="rgba(60,162,255,.48)" fontSize="8.5" fontFamily="'Courier New',monospace">Local baseband ring  0–25 GHz (always active)</text>
-            <g transform="translate(0,13)">
+            <text x={42} y={4} fill="rgba(60,162,255,.58)" fontSize="12" fontFamily="'Courier New',monospace">Local baseband ring  0–25 GHz (always active)</text>
+            <g transform="translate(0,16)">
               {[-3.8,0,3.8].map((off,i)=>(
                 <line key={i} x1={0} y1={off} x2={36} y2={off}
                   stroke={i===1?"rgba(255,208,55,.68)":"rgba(255,178,45,.48)"}
                   strokeWidth={i===1?1.7:1.2} strokeDasharray="5 4"/>
               ))}
-              <text x={42} y={4} fill="rgba(255,192,52,.58)" fontSize="8.5" fontFamily="'Courier New',monospace">Cross-rack broadband  175–290 GHz (hot clusters only · 3 parallel streams)</text>
+              <text x={42} y={4} fill="rgba(255,192,52,.68)" fontSize="12" fontFamily="'Courier New',monospace">Cross-rack broadband  175–290 GHz (hot clusters · 3 parallel streams)</text>
             </g>
-            <g transform="translate(0,26)">
+            <g transform="translate(0,32)">
               <circle cx={8} cy={0} r={2.8} fill="rgba(255,212,55,.82)"/>
               <line x1={0} y1={0} x2={36} y2={0} stroke="rgba(255,175,40,.40)" strokeWidth="1.5" strokeDasharray="7 5"/>
-              <text x={42} y={4} fill="rgba(255,175,40,.50)" fontSize="8.5" fontFamily="'Courier New',monospace">Internet traffic from remote users  (animated packets = active data flow)</text>
+              <text x={42} y={4} fill="rgba(255,175,40,.60)" fontSize="12" fontFamily="'Courier New',monospace">Internet traffic from remote users</text>
             </g>
           </g>
-
-          {/* status bar rendered last (on top) */}
-          <StatusBar phaseIdx={phaseIdx} name={sName} desc={sDesc}
-            clusterTemps={cTemps} userLevels={uLevels} mode={mode} guidedPct={gPct}/>
         </svg>
       </div>
     </div>
